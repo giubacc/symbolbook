@@ -18,8 +18,14 @@ public:
     explicit MainDlg(QWidget *parent = nullptr);
     ~MainDlg();
 
+private:
+    QStringList& obtain_files(QStringList &files,
+                              const QString &path,
+                              const QStringList &nameFilters);
+
 private slots:
     void on_input_box_textEdited(const QString &arg1);
+    void on_actionLoad_Symbols_triggered();
 
 private:
     std::unique_ptr<model::address_model> model_;

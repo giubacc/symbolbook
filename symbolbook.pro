@@ -27,11 +27,13 @@ CONFIG += c++11
 SOURCES += \
         main.cpp \
     symbol_model.cpp \
-    main_dlg.cpp
+    main_dlg.cpp \
+    str_tok.cpp
 
 HEADERS += \
     symbol_model.h \
-    main_dlg.h
+    main_dlg.h \
+    str_tok.h
 
 FORMS += \
     symbolbook.ui

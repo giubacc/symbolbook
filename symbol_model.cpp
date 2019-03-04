@@ -1,10 +1,19 @@
 #include "symbol_model.h"
 
+#include <fstream>
+#include <sstream>
+#include <algorithm>
+#include <vector>
+#include <set>
+#include <map>
+#include <memory>
+#include "str_tok.h"
+
 namespace model{
 
 address_model::address_model(QWidget *parent) : QAbstractTableModel(parent)
 {
-    load_model();
+    load_debug_model();
 }
 
 void address_model::offerKey(const QString &key)
@@ -73,21 +82,29 @@ bool model::address_model::removeRows(int position, int rows, const QModelIndex 
     return true;
 }
 
-void model::address_model::load_model()
+void model::address_model::load_debug_model()
 {
-    std::ifstream ifs("list.txt");
+    std::ifstream ifs("debug_list.txt");
     std::string line;
     while(std::getline(ifs, line)){
         std::istringstream iss(line);
         std::string token;
         std::set<std::string> current_token_set;
-        while(std::getline(iss, token, ' ')){
+        utl::str_tok strtk(line);
+        while(strtk.next_token(token)){
             std::transform(token.begin(), token.end(), token.begin(), ::tolower);
             if(current_token_set.insert(token).second){
                 ae_map_.insert(std::pair<std::string, address_entry>(token, {line}));
             }
         }
     }
+}
+
+static const char *dumpbin_prg = "C:\\Program Files (x86)\\Microsoft Visual Studio 9.0\\VC\\bin\\amd64\\dumpbin.exe";
+
+void address_model::load_model()
+{
+    QStringList arguments;
 }
 
 QString address_model::cur_key() const

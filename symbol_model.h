@@ -4,13 +4,6 @@
 #pragma warning(disable:4100)
 
 #include <QtWidgets>
-#include <fstream>
-#include <sstream>
-#include <algorithm>
-#include <vector>
-#include <set>
-#include <map>
-#include <memory>
 
 namespace model{
 
@@ -54,6 +47,7 @@ public:
     QString cur_key() const;
 
 private:
+    void load_debug_model();
     void load_model();
 
 private:
