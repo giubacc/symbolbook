@@ -6,6 +6,9 @@
 #include <QMainWindow>
 #include "symbol_model.h"
 
+#include <string>
+#include <set>
+
 namespace Ui {
 class SymbolBook;
 }
@@ -19,9 +22,13 @@ public:
     ~MainDlg();
 
 private:
-    QStringList& obtain_files(QStringList &files,
-                              const QString &path,
-                              const QStringList &nameFilters);
+
+    void load_scan_dir_set();
+
+    void obtain_sym_files(const QString &path,
+                          const QStringList &nameFilters);
+
+    void generate_sym_db();
 
 private slots:
     void on_input_box_textEdited(const QString &arg1);
@@ -29,6 +36,8 @@ private slots:
 
 private:
     std::unique_ptr<model::address_model> model_;
+    std::set<std::string> scan_dir_set_;
+    std::list<QFileInfo> sym_file_list_;
 
 private:
     Ui::SymbolBook *ui;

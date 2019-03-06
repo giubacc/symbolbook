@@ -100,8 +100,6 @@ void model::address_model::load_debug_model()
     }
 }
 
-static const char *dumpbin_prg = "C:\\Program Files (x86)\\Microsoft Visual Studio 9.0\\VC\\bin\\amd64\\dumpbin.exe";
-
 void address_model::load_model()
 {
     QStringList arguments;
