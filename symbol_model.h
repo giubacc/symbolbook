@@ -5,55 +5,52 @@
 
 #include <QtWidgets>
 
-namespace model{
+namespace model {
 
-struct address_entry{
+struct symbol_entry {
     std::string entry_str_;
+    QFileInfo finfo_;
 };
 
-class highlight_delegate : public QStyledItemDelegate
-{
-    Q_OBJECT
+class highlight_delegate : public QStyledItemDelegate {
+        Q_OBJECT
 
-public:
-    highlight_delegate(QWidget *parent = nullptr) : QStyledItemDelegate(parent) {}
+    public:
+        highlight_delegate(QWidget *parent = nullptr) : QStyledItemDelegate(parent) {}
 
-    void paint(QPainter *painter,
-               const QStyleOptionViewItem &option,
-               const QModelIndex &index) const override;
+        void paint(QPainter *painter,
+                   const QStyleOptionViewItem &option,
+                   const QModelIndex &index) const override;
 };
 
 
 class address_model : public QAbstractTableModel {
-    Q_OBJECT
-public:
-    explicit address_model(QWidget *parent = nullptr);
+        Q_OBJECT
+    public:
+        explicit address_model(QWidget *parent = nullptr);
 
-signals:
+    signals:
 
 
-public slots:
+    public slots:
 
-    void offerKey(const QString &key);
+        void offerKey(const QString &key);
 
-    // QAbstractItemModel interface
-public:
-    int rowCount(const QModelIndex &parent) const override;
-    int columnCount(const QModelIndex &parent) const override;
-    QVariant data(const QModelIndex &index, int role) const override;
-    bool insertRows(int position, int rows, const QModelIndex &index=QModelIndex()) override;
-    bool removeRows(int position, int rows, const QModelIndex &index=QModelIndex()) override;
+        // QAbstractItemModel interface
+    public:
+        int rowCount(const QModelIndex &parent) const override;
+        int columnCount(const QModelIndex &parent) const override;
+        QVariant data(const QModelIndex &index, int role) const override;
+        bool insertRows(int position, int rows, const QModelIndex &index=QModelIndex()) override;
+        bool removeRows(int position, int rows, const QModelIndex &index=QModelIndex()) override;
 
-    QString cur_key() const;
+        QString cur_key() const;
+        void add_symbol_file_to_model(const QFileInfo &finfo, const std::string &dumpbin_str);
 
-private:
-    void load_debug_model();
-    void load_model();
-
-private:
-    std::multimap<std::string, address_entry> ae_map_;
-    std::vector<address_entry*> cur_ae_;
-    QString cur_key_;
+    private:
+        std::multimap<std::string, symbol_entry> symb_map_;
+        std::vector<symbol_entry *> cur_symbols_;
+        QString cur_key_;
 };
 
 }

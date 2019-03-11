@@ -31,5 +31,32 @@ struct str_tok {
         bool ret_delims_, delims_changed_;
 };
 
+inline std::string &ltrim(std::string &str, const std::string &chars = "\t\n\v\f\r ")
+{
+    str.erase(0, str.find_first_not_of(chars));
+    return str;
+}
+
+inline std::string &rtrim(std::string &str, const std::string &chars = "\t\n\v\f\r ")
+{
+    str.erase(str.find_last_not_of(chars) + 1);
+    return str;
+}
+
+inline std::string &trim(std::string &str, const std::string &chars = "\t\n\v\f\r ")
+{
+    return ltrim(rtrim(str, chars), chars);
+}
+
+inline std::string &find_and_replace(std::string &str, const char *find, const char *replace)
+{
+    size_t f_len = strlen(find), r_len = strlen(replace);
+    for(std::string::size_type i = 0; (i = str.find(find, i)) != std::string::npos;) {
+        str.replace(i, f_len, replace);
+        i += r_len;
+    }
+    return str;
+}
+
 }
 

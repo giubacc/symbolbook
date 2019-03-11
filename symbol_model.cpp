@@ -9,45 +9,43 @@
 #include <memory>
 #include "str_tok.h"
 
-namespace model{
+namespace model {
 
 address_model::address_model(QWidget *parent) : QAbstractTableModel(parent)
-{
-    load_debug_model();
-}
+{}
 
 void address_model::offerKey(const QString &key)
 {
     cur_key_ = key;
-    if(!cur_ae_.empty()){
-        removeRows(0, (int)cur_ae_.size(), QModelIndex());
+    if(!cur_symbols_.empty()) {
+        removeRows(0, (int)cur_symbols_.size(), QModelIndex());
     }
-    cur_ae_.clear();
-    if(!key.size()){
+    cur_symbols_.clear();
+    if(!key.size()) {
         return;
     }
     auto kstr = key.toStdString();
     std::transform(kstr.begin(), kstr.end(), kstr.begin(), ::tolower);
-    for(auto it = ae_map_.lower_bound(kstr); it != ae_map_.end(); it++){
-        if(it->first.find(kstr) == 0){
-            cur_ae_.push_back(&it->second);
-        }else{
+    for(auto it = symb_map_.lower_bound(kstr); it != symb_map_.end(); it++) {
+        if(it->first.find(kstr) == 0) {
+            cur_symbols_.push_back(&it->second);
+        } else {
             break;
         }
     }
-    if(!cur_ae_.empty()){
-        insertRows(0, cur_ae_.size(), QModelIndex());
+    if(!cur_symbols_.empty()) {
+        insertRows(0, cur_symbols_.size(), QModelIndex());
     }
 }
 
 int model::address_model::rowCount(const QModelIndex &parent) const
 {
-    return (int)cur_ae_.size();
+    return (int)cur_symbols_.size();
 }
 
 int model::address_model::columnCount(const QModelIndex &parent) const
 {
-    return 1;
+    return 2;
 }
 
 QVariant model::address_model::data(const QModelIndex &index, int role) const
@@ -55,14 +53,17 @@ QVariant model::address_model::data(const QModelIndex &index, int role) const
     if(!index.isValid()) {
         return QVariant();
     }
-    if(index.row() >= (int)cur_ae_.size() || index.row() < 0) {
+    if(index.row() >= (int)cur_symbols_.size() || index.row() < 0) {
         return QVariant();
     }
-    if(index.column() != 0) {
+    if(index.column() != 0 && index.column() != 1) {
         return QVariant();
     }
-    if(role == Qt::DisplayRole) {
-        return QString(cur_ae_.at(index.row())->entry_str_.c_str());
+    if(index.column() == 1 && role == Qt::DisplayRole) {
+        return QString(cur_symbols_.at(index.row())->entry_str_.c_str());
+    }
+    if(index.column() == 0 && role == Qt::DisplayRole) {
+        return QString(cur_symbols_.at(index.row())->finfo_.absoluteFilePath());
     }
     return QVariant();
 }
@@ -77,32 +78,43 @@ bool model::address_model::insertRows(int position, int rows, const QModelIndex 
 bool model::address_model::removeRows(int position, int rows, const QModelIndex &index)
 {
     beginRemoveRows(QModelIndex(), position, position+rows-1);
-    cur_ae_.clear();
+    cur_symbols_.clear();
     endRemoveRows();
     return true;
 }
 
-void model::address_model::load_debug_model()
+void address_model::add_symbol_file_to_model(const QFileInfo &finfo,
+                                             const std::string &dumpbin_str)
 {
-    std::ifstream ifs("debug_list.txt");
+    utl::str_tok tknz(dumpbin_str);
     std::string line;
-    while(std::getline(ifs, line)){
-        std::istringstream iss(line);
-        std::string token;
-        std::set<std::string> current_token_set;
+    uint32_t no = 13;
+    while(--no && tknz.next_token(line, "\r\n"));
+
+    //read symbols no
+    {
+        utl::str_tok symbnotknz(line);
+        std::string symbno;
+        symbnotknz.next_token(symbno);
+        std::stringstream ss(symbno);
+        ss >> no;
+    }
+    while(no-- && tknz.next_token(line, "\r\n")) {
+        utl::trim(line);
+        std::string symbol;
+        std::set<std::string> current_symbol_set;
         utl::str_tok strtk(line);
-        while(strtk.next_token(token)){
-            std::transform(token.begin(), token.end(), token.begin(), ::tolower);
-            if(current_token_set.insert(token).second){
-                ae_map_.insert(std::pair<std::string, address_entry>(token, {line}));
+        while(strtk.next_token(symbol, " $@?")) {
+            if(symbol.size() <= 2) {
+                continue;
+            }
+            std::transform(symbol.begin(), symbol.end(), symbol.begin(), ::tolower);
+            if(current_symbol_set.insert(symbol).second) {
+                symb_map_.insert(std::pair<std::string, symbol_entry>(symbol, {line, finfo}));
             }
         }
+        //qDebug() << tkn.c_str();
     }
-}
-
-void address_model::load_model()
-{
-    QStringList arguments;
 }
 
 QString address_model::cur_key() const
@@ -110,9 +122,14 @@ QString address_model::cur_key() const
     return cur_key_;
 }
 
-void highlight_delegate::paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const
+void highlight_delegate::paint(QPainter *painter,
+                               const QStyleOptionViewItem &option,
+                               const QModelIndex &index) const
 {
-    QString dataHighlight(((address_model*)index.model())->cur_key()); // The text to highlight.
+    if(!index.isValid()) {
+        return;
+    }
+    QString dataHighlight(((address_model *)index.model())->cur_key()); // The text to highlight.
     QString value = index.model()->data(index, Qt::DisplayRole).toString();
 
     QTextDocument doc(value);
@@ -120,8 +137,8 @@ void highlight_delegate::paint(QPainter *painter, const QStyleOptionViewItem &op
     QTextCursor cur(&doc);
 
     // We have to iterate through the QTextDocument to find ALL matching places
-    while (!(cur = doc.find(dataHighlight,cur.position())).isNull()) {
-        if(cur.position() < value.size() && value[cur.position()] == ' '){
+    while(!(cur = doc.find(dataHighlight, cur.position())).isNull()) {
+        if(cur.position() < value.size() && value[cur.position()] == ' ') {
             selection.setBackground(Qt::green);
         } else {
             selection.setBackground(Qt::yellow);
