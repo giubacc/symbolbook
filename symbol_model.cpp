@@ -48,6 +48,18 @@ int model::address_model::columnCount(const QModelIndex &parent) const
     return 2;
 }
 
+QVariant address_model::headerData(int section, Qt::Orientation orientation, int role) const
+{
+    if(role != Qt::DisplayRole) {
+        return QVariant();
+    }
+    if(orientation == Qt::Horizontal) {
+        return section == 0 ? tr("Source File") : tr("Symbol");
+    } else {
+        return QAbstractTableModel::headerData(section, orientation, role);
+    }
+}
+
 QVariant model::address_model::data(const QModelIndex &index, int role) const
 {
     if(!index.isValid()) {
@@ -127,6 +139,10 @@ void highlight_delegate::paint(QPainter *painter,
                                const QModelIndex &index) const
 {
     if(!index.isValid()) {
+        return;
+    }
+    if(index.column() == 0) {
+        QStyledItemDelegate::paint(painter, option, index);
         return;
     }
     QString dataHighlight(((address_model *)index.model())->cur_key()); // The text to highlight.

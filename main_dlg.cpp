@@ -18,8 +18,8 @@ MainDlg::MainDlg(QWidget *parent) :
 {
     ui->setupUi(this);
     ui->result_table->setModel(model_.get());
-    ui->result_table->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
-    ui->result_table->setItemDelegate(new model::highlight_delegate());
+    ui->result_table->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
+    //ui->result_table->setItemDelegate(new model::highlight_delegate());
 }
 
 MainDlg::~MainDlg()
