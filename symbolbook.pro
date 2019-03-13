@@ -34,12 +34,14 @@ SOURCES += \
         main.cpp \
     symbol_model.cpp \
     main_dlg.cpp \
-    str_tok.cpp
+    str_tok.cpp \
+    waitingspinnerwidget.cpp
 
 HEADERS += \
     symbol_model.h \
     main_dlg.h \
-    str_tok.h
+    str_tok.h \
+    waitingspinnerwidget.h
 
 FORMS += \
     symbolbook.ui

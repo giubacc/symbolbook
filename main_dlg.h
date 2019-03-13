@@ -5,6 +5,7 @@
 
 #include <QMainWindow>
 #include "symbol_model.h"
+#include "waitingspinnerwidget.h"
 
 #include <string>
 #include <set>
@@ -32,12 +33,18 @@ class MainDlg : public QMainWindow {
     private slots:
         void on_input_box_textEdited(const QString &arg1);
         void on_actionLoad_Symbols_triggered();
+        void onSymbolsLoaded();
+
+    signals:
+        void symbolsLoaded();
 
     private:
         std::string dumpbin_;
         std::unique_ptr<model::address_model> model_;
         std::set<std::string> scan_dir_set_;
         std::list<QFileInfo> sym_file_list_;
+        std::unique_ptr<std::thread> load_symbs_worker_;
+        std::unique_ptr<WaitingSpinnerWidget> spinner_;
 
     private:
         Ui::SymbolBook *ui;

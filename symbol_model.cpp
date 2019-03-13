@@ -92,6 +92,8 @@ bool model::address_model::removeRows(int position, int rows, const QModelIndex 
     return true;
 }
 
+const std::string sym_seps(" $@?");
+
 void address_model::add_symbol_file_to_model(const QFileInfo &finfo,
                                              const std::string &dumpbin_str)
 {
@@ -113,7 +115,7 @@ void address_model::add_symbol_file_to_model(const QFileInfo &finfo,
         std::string symbol;
         std::set<std::string> current_symbol_set;
         utl::str_tok strtk(line);
-        while(strtk.next_token(symbol, " $@?")) {
+        while(strtk.next_token(symbol, sym_seps.c_str())) {
             if(symbol.size() <= 2) {
                 continue;
             }
@@ -143,8 +145,8 @@ void highlight_delegate::paint(QPainter *painter,
         QStyledItemDelegate::paint(painter, option, index);
         return;
     }
-    QString dataHighlight(((const address_model *)index.model())->cur_key()); // The text to highlight.
-    QString value = index.model()->data(index, Qt::DisplayRole).toString();
+    QString dataHighlight((static_cast<const address_model *>(index.model()))->cur_key()); // The text to highlight.
+    const QString value(index.model()->data(index, Qt::DisplayRole).toString());
 
     QTextDocument doc(value);
     QTextCharFormat selection;
@@ -152,7 +154,8 @@ void highlight_delegate::paint(QPainter *painter,
 
     // We have to iterate through the QTextDocument to find ALL matching places
     while(!(cur = doc.find(dataHighlight, cur.position())).isNull()) {
-        if(cur.position() < value.size() && value[cur.position()] == ' ') {
+        if(cur.position() == value.size() ||
+           (cur.position() < value.size() && sym_seps.find(value[cur.position()].toLatin1()) != std::string::npos)) {
             selection.setBackground(Qt::green);
         } else {
             selection.setBackground(Qt::yellow);

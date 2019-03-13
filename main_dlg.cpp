@@ -12,12 +12,25 @@
 MainDlg::MainDlg(QWidget *parent) :
     QMainWindow(parent),
     model_(new model::address_model(parent)),
+    spinner_(new WaitingSpinnerWidget(Qt::ApplicationModal, parent)),
     ui(new Ui::SymbolBook)
 {
     ui->setupUi(this);
     ui->result_table->setModel(model_.get());
     ui->result_table->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
     ui->result_table->setItemDelegate(new model::highlight_delegate());
+
+    spinner_->setRoundness(70.0);
+    spinner_->setMinimumTrailOpacity(15.0);
+    spinner_->setTrailFadePercentage(70.0);
+    spinner_->setNumberOfLines(12);
+    spinner_->setLineLength(10);
+    spinner_->setLineWidth(5);
+    spinner_->setInnerRadius(10);
+    spinner_->setRevolutionsPerSecond(1);
+    spinner_->setColor(QColor(81, 4, 71));
+
+    connect(this, SIGNAL(symbolsLoaded()), this, SLOT(onSymbolsLoaded()));
 }
 
 MainDlg::~MainDlg()
@@ -59,28 +72,34 @@ void MainDlg::obtain_sym_files(const QString &path,
 
 void MainDlg::generate_sym_db()
 {
-    std::for_each(sym_file_list_.begin(), sym_file_list_.end(), [&](auto &it) {
-        QProcess dumpbin(this);
-        dumpbin.setProcessChannelMode(QProcess::MergedChannels);
-        QStringList dumpbin_args;
-        dumpbin_args << "/LINKERMEMBER:1"
-                     << it.absoluteFilePath();
-
-        dumpbin.start(dumpbin_.c_str(), dumpbin_args);
-        // Get the output
-        QByteArray output;
-        if(dumpbin.waitForStarted(-1)) {
-            while(dumpbin.waitForReadyRead(-1)) {
-                output += dumpbin.readAllStandardOutput();
+    spinner_->start();
+    load_symbs_worker_.reset(new std::thread([&](){
+        std::for_each(sym_file_list_.begin(), sym_file_list_.end(), [&](auto &it) {
+            QProcess dumpbin;
+            dumpbin.setProcessChannelMode(QProcess::MergedChannels);
+            QStringList dumpbin_args;
+            dumpbin_args << "/LINKERMEMBER:1" << it.absoluteFilePath();
+            dumpbin.start(dumpbin_.c_str(), dumpbin_args);
+            // Get the output
+            QByteArray output;
+            if(dumpbin.waitForStarted(-1)) {
+                while(dumpbin.waitForReadyRead(-1)) {
+                    output += dumpbin.readAllStandardOutput();
+                }
             }
-        }
-        dumpbin.waitForFinished();
-        model_->add_symbol_file_to_model(it, output.toStdString());
-    });
+            dumpbin.waitForFinished();
+            model_->add_symbol_file_to_model(it, output.toStdString());
+        });
+        emit symbolsLoaded();
+    }));
 }
 
 void MainDlg::on_input_box_textEdited(const QString &arg1)
 {
+    if(!model_->symbolsCount()){
+        ui->statusBar->setStyleSheet("color : red;");
+        ui->statusBar->showMessage(tr("no symbols loaded!"), 5000);
+    }
     if(arg1.size() >= 3) {
         model_->offerKey(arg1);
     } else {
@@ -104,4 +123,12 @@ void MainDlg::on_actionLoad_Symbols_triggered()
 
     //generate local db of symbols
     generate_sym_db();
+}
+
+void MainDlg::onSymbolsLoaded()
+{
+    spinner_->stop();
+    ui->statusBar->setStyleSheet("color : blue;");
+    ui->statusBar->showMessage(tr("%1 symbols loaded").arg(model_->symbolsCount()));
+    load_symbs_worker_->join();
 }

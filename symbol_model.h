@@ -32,11 +32,7 @@ class address_model : public QAbstractTableModel {
     public:
         explicit address_model(QWidget *parent = nullptr);
 
-    signals:
-
-
     public slots:
-
         void offerKey(const QString &key);
 
         // QAbstractItemModel interface
@@ -50,6 +46,7 @@ class address_model : public QAbstractTableModel {
 
         QString cur_key() const;
         void add_symbol_file_to_model(const QFileInfo &finfo, const std::string &dumpbin_str);
+        size_t symbolsCount(){ return symb_map_.size(); }
 
     private:
         std::set<std::string> entry_str_pool_;
