@@ -3,9 +3,6 @@
 #include <fstream>
 #include <sstream>
 #include <algorithm>
-#include <vector>
-#include <set>
-#include <map>
 #include <memory>
 #include "str_tok.h"
 
@@ -122,7 +119,8 @@ void address_model::add_symbol_file_to_model(const QFileInfo &finfo,
             }
             std::transform(symbol.begin(), symbol.end(), symbol.begin(), ::tolower);
             if(current_symbol_set.insert(symbol).second) {
-                symb_map_.insert(std::pair<std::string, symbol_entry>(symbol, {line, finfo}));
+                auto i_e_str = entry_str_pool_.insert(line);
+                symb_map_.insert(std::pair<std::string, symbol_entry>(symbol, {*i_e_str.first, finfo}));
             }
         }
         //qDebug() << tkn.c_str();
@@ -145,7 +143,7 @@ void highlight_delegate::paint(QPainter *painter,
         QStyledItemDelegate::paint(painter, option, index);
         return;
     }
-    QString dataHighlight(((address_model *)index.model())->cur_key()); // The text to highlight.
+    QString dataHighlight(((const address_model *)index.model())->cur_key()); // The text to highlight.
     QString value = index.model()->data(index, Qt::DisplayRole).toString();
 
     QTextDocument doc(value);

@@ -11,6 +11,12 @@ greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 TARGET = symbolbook
 TEMPLATE = app
 
+DEFINES += 'APP_NAME=\"SymbolBook\"'
+VERSION = 0.0.0
+DEFINES += APP_VERSION=$$VERSION
+
+RC_FILE = symbk.rc
+
 # The following define makes your compiler emit warnings if you use
 # any feature of Qt which has been marked as deprecated (the exact warnings
 # depend on your compiler). Please consult the documentation of the

@@ -1,5 +1,5 @@
 <RCC>
     <qresource prefix="/">
-        <file>icons/ajax-loader.gif</file>
+        <file>icons/md-arrow-round-up.svg</file>
     </qresource>
 </RCC>

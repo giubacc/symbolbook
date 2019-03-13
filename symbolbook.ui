@@ -73,12 +73,18 @@
   </widget>
   <widget class="QStatusBar" name="statusBar"/>
   <action name="actionLoad_Symbols">
+   <property name="icon">
+    <iconset resource="symbk.qrc">
+     <normaloff>:/icons/md-arrow-round-up.svg</normaloff>:/icons/md-arrow-round-up.svg</iconset>
+   </property>
    <property name="text">
     <string>Load Symbols</string>
    </property>
   </action>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
- <resources/>
+ <resources>
+  <include location="symbk.qrc"/>
+ </resources>
  <connections/>
 </ui>

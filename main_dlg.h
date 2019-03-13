@@ -21,7 +21,7 @@ class MainDlg : public QMainWindow {
         ~MainDlg();
 
     private:
-
+        void load_dumpbin();
         void load_scan_dir_set();
 
         void obtain_sym_files(const QString &path,
@@ -34,6 +34,7 @@ class MainDlg : public QMainWindow {
         void on_actionLoad_Symbols_triggered();
 
     private:
+        std::string dumpbin_;
         std::unique_ptr<model::address_model> model_;
         std::set<std::string> scan_dir_set_;
         std::list<QFileInfo> sym_file_list_;

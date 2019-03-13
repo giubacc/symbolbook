@@ -4,12 +4,15 @@
 #pragma warning(disable:4100)
 
 #include <QtWidgets>
+#include <set>
+#include <vector>
+#include <map>
 
 namespace model {
 
 struct symbol_entry {
-    std::string entry_str_;
-    QFileInfo finfo_;
+    const std::string &entry_str_;
+    const QFileInfo finfo_;
 };
 
 class highlight_delegate : public QStyledItemDelegate {
@@ -49,6 +52,7 @@ class address_model : public QAbstractTableModel {
         void add_symbol_file_to_model(const QFileInfo &finfo, const std::string &dumpbin_str);
 
     private:
+        std::set<std::string> entry_str_pool_;
         std::multimap<std::string, symbol_entry> symb_map_;
         std::vector<symbol_entry *> cur_symbols_;
         QString cur_key_;
