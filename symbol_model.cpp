@@ -115,6 +115,7 @@ void address_model::add_symbol_file_to_model(const QFileInfo &finfo,
         std::string symbol;
         std::set<std::string> current_symbol_set;
         utl::str_tok strtk(line);
+        strtk.next_token(symbol, sym_seps.c_str()); //1 token not useful
         while(strtk.next_token(symbol, sym_seps.c_str())) {
             if(symbol.size() <= 2) {
                 continue;
@@ -127,6 +128,14 @@ void address_model::add_symbol_file_to_model(const QFileInfo &finfo,
         }
         //qDebug() << tkn.c_str();
     }
+}
+
+void address_model::drop_symbols()
+{
+    cur_key_.clear();
+    cur_symbols_.clear();
+    symb_map_.clear();
+    entry_str_pool_.clear();
 }
 
 QString address_model::cur_key() const

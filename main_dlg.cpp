@@ -35,7 +35,7 @@ MainDlg::MainDlg(QWidget *parent) :
     settings.endGroup();
     //settings end
 
-    connect(this, SIGNAL(symbolsLoaded()), this, SLOT(onSymbolsLoaded()));
+    connect(this, SIGNAL(modelChanged()), this, SLOT(onModelChanged()));
     connect(ui->result_table, SIGNAL(enterPressed(QModelIndex)), this,
             SLOT(onResultTableEnterPressed(const QModelIndex &)));
 
@@ -101,7 +101,7 @@ void MainDlg::obtain_sym_files(const QString &path,
     }
 }
 
-void MainDlg::generate_sym_db()
+void MainDlg::load_syms()
 {
     setup_spinner();
     spinner_->start();
@@ -122,8 +122,16 @@ void MainDlg::generate_sym_db()
             dumpbin.waitForFinished();
             model_->add_symbol_file_to_model(it, output.toStdString());
         });
-        emit symbolsLoaded();
+        emit modelChanged();
     }));
+}
+
+void MainDlg::drop_syms()
+{
+    scan_dir_set_.clear();
+    sym_file_list_.clear();
+    model_->drop_symbols();
+    emit modelChanged();
 }
 
 void MainDlg::on_input_box_textEdited(const QString &arg1)
@@ -152,14 +160,23 @@ void MainDlg::on_actionLoad_Symbols_triggered()
         obtain_sym_files(tr(it.c_str()), QStringList() << "*.lib");
     });
 
-    //generate local db of symbols
-    generate_sym_db();
+    //load symbols
+    load_syms();
 }
 
-void MainDlg::onSymbolsLoaded()
+void MainDlg::on_actionDrop_Symbols_triggered()
 {
-    load_symbs_worker_->join();
-    spinner_->stop();
+    drop_syms();
+}
+
+void MainDlg::onModelChanged()
+{
+    if(load_symbs_worker_ && load_symbs_worker_->joinable()) {
+        load_symbs_worker_->join();
+    }
+    if(spinner_) {
+        spinner_->stop();
+    }
     ui->statusBar->setStyleSheet("color : blue;");
     ui->statusBar->showMessage(tr("%1 symbols loaded").arg(model_->symbolsCount()));
 }
@@ -171,3 +188,5 @@ void MainDlg::onResultTableEnterPressed(const QModelIndex &index)
     args << "/select," << QDir::toNativeSeparators(fileInfo.canonicalFilePath());
     QProcess::startDetached("explorer.exe", args);
 }
+
+

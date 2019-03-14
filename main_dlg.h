@@ -32,16 +32,19 @@ class MainDlg : public QMainWindow {
         void obtain_sym_files(const QString &path,
                               const QStringList &nameFilters);
 
-        void generate_sym_db();
+        void load_syms();
+        void drop_syms();
 
     private slots:
         void on_input_box_textEdited(const QString &arg1);
         void on_actionLoad_Symbols_triggered();
-        void onSymbolsLoaded();
+        void onModelChanged();
         void onResultTableEnterPressed(const QModelIndex &index);
 
+        void on_actionDrop_Symbols_triggered();
+
     signals:
-        void symbolsLoaded();
+        void modelChanged();
 
     private:
         std::string dumpbin_;

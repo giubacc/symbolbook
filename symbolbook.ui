@@ -41,10 +41,10 @@
          <bool>false</bool>
         </property>
         <attribute name="horizontalHeaderVisible">
-         <bool>true</bool>
+         <bool>false</bool>
         </attribute>
         <attribute name="verticalHeaderVisible">
-         <bool>true</bool>
+         <bool>false</bool>
         </attribute>
        </widget>
       </item>
@@ -63,6 +63,7 @@
     <bool>false</bool>
    </attribute>
    <addaction name="actionLoad_Symbols"/>
+   <addaction name="actionDrop_Symbols"/>
   </widget>
   <widget class="QStatusBar" name="statusBar"/>
   <action name="actionLoad_Symbols">
@@ -72,6 +73,18 @@
    </property>
    <property name="text">
     <string>Load Symbols</string>
+   </property>
+  </action>
+  <action name="actionDrop_Symbols">
+   <property name="icon">
+    <iconset resource="symbk.qrc">
+     <normaloff>:/icons/md-trash.svg</normaloff>:/icons/md-trash.svg</iconset>
+   </property>
+   <property name="text">
+    <string>Drop Symbols</string>
+   </property>
+   <property name="toolTip">
+    <string>Drop Symbols</string>
    </property>
   </action>
  </widget>
