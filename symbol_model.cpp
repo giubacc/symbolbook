@@ -155,7 +155,7 @@ void highlight_delegate::paint(QPainter *painter,
     // We have to iterate through the QTextDocument to find ALL matching places
     while(!(cur = doc.find(dataHighlight, cur.position())).isNull()) {
         if(cur.position() == value.size() ||
-           (cur.position() < value.size() && sym_seps.find(value[cur.position()].toLatin1()) != std::string::npos)) {
+                (cur.position() < value.size() && sym_seps.find(value[cur.position()].toLatin1()) != std::string::npos)) {
             selection.setBackground(Qt::green);
         } else {
             selection.setBackground(Qt::yellow);

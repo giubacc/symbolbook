@@ -46,7 +46,14 @@ class address_model : public QAbstractTableModel {
 
         QString cur_key() const;
         void add_symbol_file_to_model(const QFileInfo &finfo, const std::string &dumpbin_str);
-        size_t symbolsCount(){ return symb_map_.size(); }
+
+        size_t symbolsCount() {
+            return symb_map_.size();
+        }
+
+        const QFileInfo &getFInfo(const QModelIndex &index) {
+            return cur_symbols_.at(index.row())->finfo_;
+        }
 
     private:
         std::set<std::string> entry_str_pool_;

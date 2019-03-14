@@ -36,7 +36,8 @@ WaitingSpinnerWidget::WaitingSpinnerWidget(QWidget *parent,
                                            bool disableParentWhenSpinning)
     : QWidget(parent),
       _centerOnParent(centerOnParent),
-      _disableParentWhenSpinning(disableParentWhenSpinning) {
+      _disableParentWhenSpinning(disableParentWhenSpinning)
+{
     initialize();
 }
 
@@ -46,7 +47,8 @@ WaitingSpinnerWidget::WaitingSpinnerWidget(Qt::WindowModality modality,
                                            bool disableParentWhenSpinning)
     : QWidget(parent, Qt::Dialog | Qt::FramelessWindowHint),
       _centerOnParent(centerOnParent),
-      _disableParentWhenSpinning(disableParentWhenSpinning){
+      _disableParentWhenSpinning(disableParentWhenSpinning)
+{
     initialize();
 
     // We need to set the window modality AFTER we've hidden the
@@ -56,7 +58,8 @@ WaitingSpinnerWidget::WaitingSpinnerWidget(Qt::WindowModality modality,
     setAttribute(Qt::WA_TranslucentBackground);
 }
 
-void WaitingSpinnerWidget::initialize() {
+void WaitingSpinnerWidget::initialize()
+{
     _color = Qt::black;
     _roundness = 100.0;
     _minimumTrailOpacity = 3.14159265358979323846;
@@ -76,40 +79,42 @@ void WaitingSpinnerWidget::initialize() {
     hide();
 }
 
-void WaitingSpinnerWidget::paintEvent(QPaintEvent *) {
+void WaitingSpinnerWidget::paintEvent(QPaintEvent *)
+{
     updatePosition();
     QPainter painter(this);
     painter.fillRect(this->rect(), Qt::transparent);
     painter.setRenderHint(QPainter::Antialiasing, true);
 
-    if (_currentCounter >= _numberOfLines) {
+    if(_currentCounter >= _numberOfLines) {
         _currentCounter = 0;
     }
 
     painter.setPen(Qt::NoPen);
-    for (int i = 0; i < _numberOfLines; ++i) {
+    for(int i = 0; i < _numberOfLines; ++i) {
         painter.save();
         painter.translate(_innerRadius + _lineLength,
                           _innerRadius + _lineLength);
         qreal rotateAngle =
-                static_cast<qreal>(360 * i) / static_cast<qreal>(_numberOfLines);
+            static_cast<qreal>(360 * i) / static_cast<qreal>(_numberOfLines);
         painter.rotate(rotateAngle);
         painter.translate(_innerRadius, 0);
         int distance =
-                lineCountDistanceFromPrimary(i, _currentCounter, _numberOfLines);
+            lineCountDistanceFromPrimary(i, _currentCounter, _numberOfLines);
         QColor color =
-                currentLineColor(distance, _numberOfLines, _trailFadePercentage,
-                                 _minimumTrailOpacity, _color);
+            currentLineColor(distance, _numberOfLines, _trailFadePercentage,
+                             _minimumTrailOpacity, _color);
         painter.setBrush(color);
         // TODO improve the way rounded rect is painted
         painter.drawRoundedRect(
-                    QRect(0, -_lineWidth / 2, _lineLength, _lineWidth), _roundness,
-                    _roundness, Qt::RelativeSize);
+            QRect(0, -_lineWidth / 2, _lineLength, _lineWidth), _roundness,
+            _roundness, Qt::RelativeSize);
         painter.restore();
     }
 }
 
-void WaitingSpinnerWidget::start() {
+void WaitingSpinnerWidget::start()
+{
     updatePosition();
     _isSpinning = true;
     show();
@@ -118,13 +123,14 @@ void WaitingSpinnerWidget::start() {
         parentWidget()->setEnabled(false);
     }
 
-    if (!_timer->isActive()) {
+    if(!_timer->isActive()) {
         _timer->start();
         _currentCounter = 0;
     }
 }
 
-void WaitingSpinnerWidget::stop() {
+void WaitingSpinnerWidget::stop()
+{
     _isSpinning = false;
     hide();
 
@@ -132,122 +138,146 @@ void WaitingSpinnerWidget::stop() {
         parentWidget()->setEnabled(true);
     }
 
-    if (_timer->isActive()) {
+    if(_timer->isActive()) {
         _timer->stop();
         _currentCounter = 0;
     }
 }
 
-void WaitingSpinnerWidget::setNumberOfLines(int lines) {
+void WaitingSpinnerWidget::setNumberOfLines(int lines)
+{
     _numberOfLines = lines;
     _currentCounter = 0;
     updateTimer();
 }
 
-void WaitingSpinnerWidget::setLineLength(int length) {
+void WaitingSpinnerWidget::setLineLength(int length)
+{
     _lineLength = length;
     updateSize();
 }
 
-void WaitingSpinnerWidget::setLineWidth(int width) {
+void WaitingSpinnerWidget::setLineWidth(int width)
+{
     _lineWidth = width;
     updateSize();
 }
 
-void WaitingSpinnerWidget::setInnerRadius(int radius) {
+void WaitingSpinnerWidget::setInnerRadius(int radius)
+{
     _innerRadius = radius;
     updateSize();
 }
 
-QColor WaitingSpinnerWidget::color() {
+QColor WaitingSpinnerWidget::color()
+{
     return _color;
 }
 
-qreal WaitingSpinnerWidget::roundness() {
+qreal WaitingSpinnerWidget::roundness()
+{
     return _roundness;
 }
 
-qreal WaitingSpinnerWidget::minimumTrailOpacity() {
+qreal WaitingSpinnerWidget::minimumTrailOpacity()
+{
     return _minimumTrailOpacity;
 }
 
-qreal WaitingSpinnerWidget::trailFadePercentage() {
+qreal WaitingSpinnerWidget::trailFadePercentage()
+{
     return _trailFadePercentage;
 }
 
-qreal WaitingSpinnerWidget::revolutionsPersSecond() {
+qreal WaitingSpinnerWidget::revolutionsPersSecond()
+{
     return _revolutionsPerSecond;
 }
 
-int WaitingSpinnerWidget::numberOfLines() {
+int WaitingSpinnerWidget::numberOfLines()
+{
     return _numberOfLines;
 }
 
-int WaitingSpinnerWidget::lineLength() {
+int WaitingSpinnerWidget::lineLength()
+{
     return _lineLength;
 }
 
-int WaitingSpinnerWidget::lineWidth() {
+int WaitingSpinnerWidget::lineWidth()
+{
     return _lineWidth;
 }
 
-int WaitingSpinnerWidget::innerRadius() {
+int WaitingSpinnerWidget::innerRadius()
+{
     return _innerRadius;
 }
 
-bool WaitingSpinnerWidget::isSpinning() const {
+bool WaitingSpinnerWidget::isSpinning() const
+{
     return _isSpinning;
 }
 
-void WaitingSpinnerWidget::setRoundness(qreal roundness) {
+void WaitingSpinnerWidget::setRoundness(qreal roundness)
+{
     _roundness = std::max(0.0, std::min(100.0, roundness));
 }
 
-void WaitingSpinnerWidget::setColor(QColor color) {
+void WaitingSpinnerWidget::setColor(QColor color)
+{
     _color = color;
 }
 
-void WaitingSpinnerWidget::setRevolutionsPerSecond(qreal revolutionsPerSecond) {
+void WaitingSpinnerWidget::setRevolutionsPerSecond(qreal revolutionsPerSecond)
+{
     _revolutionsPerSecond = revolutionsPerSecond;
     updateTimer();
 }
 
-void WaitingSpinnerWidget::setTrailFadePercentage(qreal trail) {
+void WaitingSpinnerWidget::setTrailFadePercentage(qreal trail)
+{
     _trailFadePercentage = trail;
 }
 
-void WaitingSpinnerWidget::setMinimumTrailOpacity(qreal minimumTrailOpacity) {
+void WaitingSpinnerWidget::setMinimumTrailOpacity(qreal minimumTrailOpacity)
+{
     _minimumTrailOpacity = minimumTrailOpacity;
 }
 
-void WaitingSpinnerWidget::rotate() {
+void WaitingSpinnerWidget::rotate()
+{
     ++_currentCounter;
-    if (_currentCounter >= _numberOfLines) {
+    if(_currentCounter >= _numberOfLines) {
         _currentCounter = 0;
     }
     update();
 }
 
-void WaitingSpinnerWidget::updateSize() {
+void WaitingSpinnerWidget::updateSize()
+{
     int size = (_innerRadius + _lineLength) * 2;
     setFixedSize(size, size);
 }
 
-void WaitingSpinnerWidget::updateTimer() {
+void WaitingSpinnerWidget::updateTimer()
+{
     _timer->setInterval(1000 / (_numberOfLines * _revolutionsPerSecond));
 }
 
-void WaitingSpinnerWidget::updatePosition() {
-    if (parentWidget() && _centerOnParent) {
+void WaitingSpinnerWidget::updatePosition()
+{
+    if(parentWidget() && _centerOnParent) {
         move(parentWidget()->width() / 2 - width() / 2,
              parentWidget()->height() / 2 - height() / 2);
     }
 }
 
 int WaitingSpinnerWidget::lineCountDistanceFromPrimary(int current, int primary,
-                                                       int totalNrOfLines) {
+                                                       int totalNrOfLines)
+{
     int distance = primary - current;
-    if (distance < 0) {
+    if(distance < 0) {
         distance += totalNrOfLines;
     }
     return distance;
@@ -255,14 +285,15 @@ int WaitingSpinnerWidget::lineCountDistanceFromPrimary(int current, int primary,
 
 QColor WaitingSpinnerWidget::currentLineColor(int countDistance, int totalNrOfLines,
                                               qreal trailFadePerc, qreal minOpacity,
-                                              QColor color) {
-    if (countDistance == 0) {
+                                              QColor color)
+{
+    if(countDistance == 0) {
         return color;
     }
     const qreal minAlphaF = minOpacity / 100.0;
     int distanceThreshold =
-            static_cast<int>(ceil((totalNrOfLines - 1) * trailFadePerc / 100.0));
-    if (countDistance > distanceThreshold) {
+        static_cast<int>(ceil((totalNrOfLines - 1) * trailFadePerc / 100.0));
+    if(countDistance > distanceThreshold) {
         color.setAlphaF(minAlphaF);
     } else {
         qreal alphaDiff = color.alphaF() - minAlphaF;

@@ -21,9 +21,13 @@ class MainDlg : public QMainWindow {
         explicit MainDlg(QWidget *parent = nullptr);
         ~MainDlg();
 
+    protected:
+        void closeEvent(QCloseEvent *event) override;
+
     private:
         void load_dumpbin();
         void load_scan_dir_set();
+        void setup_spinner();
 
         void obtain_sym_files(const QString &path,
                               const QStringList &nameFilters);
@@ -34,6 +38,7 @@ class MainDlg : public QMainWindow {
         void on_input_box_textEdited(const QString &arg1);
         void on_actionLoad_Symbols_triggered();
         void onSymbolsLoaded();
+        void onResultTableEnterPressed(const QModelIndex &index);
 
     signals:
         void symbolsLoaded();

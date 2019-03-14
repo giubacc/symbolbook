@@ -6,13 +6,16 @@
 #include <sstream>
 #include <algorithm>
 
-#define SYM_LOCS "symlocs"
-#define DUMPBIN_LOC "dumpbinloc"
+#define KEY_WINDOW      "SymbolBookKeyWindow"
+#define KEY_POSITION    "SymbolBookKeyPosition"
+#define KEY_SIZE        "SymbolBookKeySize"
+
+#define SYM_LOCS        "symlocs"
+#define DUMPBIN_LOC     "dumpbinloc"
 
 MainDlg::MainDlg(QWidget *parent) :
     QMainWindow(parent),
     model_(new model::address_model(parent)),
-    spinner_(new WaitingSpinnerWidget(Qt::ApplicationModal, parent)),
     ui(new Ui::SymbolBook)
 {
     ui->setupUi(this);
@@ -20,22 +23,36 @@ MainDlg::MainDlg(QWidget *parent) :
     ui->result_table->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
     ui->result_table->setItemDelegate(new model::highlight_delegate());
 
-    spinner_->setRoundness(70.0);
-    spinner_->setMinimumTrailOpacity(15.0);
-    spinner_->setTrailFadePercentage(70.0);
-    spinner_->setNumberOfLines(12);
-    spinner_->setLineLength(10);
-    spinner_->setLineWidth(5);
-    spinner_->setInnerRadius(10);
-    spinner_->setRevolutionsPerSecond(1);
-    spinner_->setColor(QColor(81, 4, 71));
+    //settings bgn
+    QSettings settings;
+    settings.beginGroup(KEY_WINDOW);
+    if(settings.contains(KEY_SIZE)) {
+        resize(settings.value(KEY_SIZE).toSize());
+    }
+    if(settings.contains(KEY_POSITION)) {
+        move(settings.value(KEY_POSITION).toPoint());
+    }
+    settings.endGroup();
+    //settings end
 
     connect(this, SIGNAL(symbolsLoaded()), this, SLOT(onSymbolsLoaded()));
+    connect(ui->result_table, SIGNAL(enterPressed(QModelIndex)), this,
+            SLOT(onResultTableEnterPressed(const QModelIndex &)));
+
 }
 
 MainDlg::~MainDlg()
 {
     delete ui;
+}
+
+void MainDlg::closeEvent(QCloseEvent *event)
+{
+    QSettings settings;
+    settings.beginGroup(KEY_WINDOW);
+    settings.setValue(KEY_SIZE, size());
+    settings.setValue(KEY_POSITION, pos());
+    settings.endGroup();
 }
 
 void MainDlg::load_dumpbin()
@@ -44,7 +61,7 @@ void MainDlg::load_dumpbin()
     std::string line;
     std::getline(ifs, line);
     std::string::reverse_iterator rit = line.rbegin();
-    if (rit != line.rend() && *rit != '\\'){
+    if(rit != line.rend() && *rit != '\\') {
         line += '\\';
     }
     dumpbin_.assign(line).append("dumpbin.exe");
@@ -60,6 +77,20 @@ void MainDlg::load_scan_dir_set()
     }
 }
 
+void MainDlg::setup_spinner()
+{
+    spinner_.reset(new WaitingSpinnerWidget(Qt::ApplicationModal, parentWidget()));
+    spinner_->setRoundness(70.0);
+    spinner_->setMinimumTrailOpacity(15.0);
+    spinner_->setTrailFadePercentage(70.0);
+    spinner_->setNumberOfLines(12);
+    spinner_->setLineLength(10);
+    spinner_->setLineWidth(5);
+    spinner_->setInnerRadius(10);
+    spinner_->setRevolutionsPerSecond(1);
+    spinner_->setColor(QColor(81, 4, 71));
+}
+
 void MainDlg::obtain_sym_files(const QString &path,
                                const QStringList &nameFilters)
 {
@@ -72,8 +103,9 @@ void MainDlg::obtain_sym_files(const QString &path,
 
 void MainDlg::generate_sym_db()
 {
+    setup_spinner();
     spinner_->start();
-    load_symbs_worker_.reset(new std::thread([&](){
+    load_symbs_worker_.reset(new std::thread([&]() {
         std::for_each(sym_file_list_.begin(), sym_file_list_.end(), [&](auto &it) {
             QProcess dumpbin;
             dumpbin.setProcessChannelMode(QProcess::MergedChannels);
@@ -96,7 +128,7 @@ void MainDlg::generate_sym_db()
 
 void MainDlg::on_input_box_textEdited(const QString &arg1)
 {
-    if(!model_->symbolsCount()){
+    if(!model_->symbolsCount()) {
         ui->statusBar->setStyleSheet("color : red;");
         ui->statusBar->showMessage(tr("no symbols loaded!"), 5000);
     }
@@ -117,8 +149,7 @@ void MainDlg::on_actionLoad_Symbols_triggered()
 
     //load all files path
     std::for_each(scan_dir_set_.begin(), scan_dir_set_.end(), [&](auto &it) {
-        obtain_sym_files(tr(it.c_str()),
-                         QStringList() << "*.lib");
+        obtain_sym_files(tr(it.c_str()), QStringList() << "*.lib");
     });
 
     //generate local db of symbols
@@ -127,8 +158,16 @@ void MainDlg::on_actionLoad_Symbols_triggered()
 
 void MainDlg::onSymbolsLoaded()
 {
+    load_symbs_worker_->join();
     spinner_->stop();
     ui->statusBar->setStyleSheet("color : blue;");
     ui->statusBar->showMessage(tr("%1 symbols loaded").arg(model_->symbolsCount()));
-    load_symbs_worker_->join();
+}
+
+void MainDlg::onResultTableEnterPressed(const QModelIndex &index)
+{
+    const QFileInfo &fileInfo = model_->getFInfo(index);
+    QStringList args;
+    args << "/select," << QDir::toNativeSeparators(fileInfo.canonicalFilePath());
+    QProcess::startDetached("explorer.exe", args);
 }

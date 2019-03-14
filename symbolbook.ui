@@ -18,7 +18,7 @@
     <item>
      <layout class="QVBoxLayout" name="verticalLayout">
       <item>
-       <widget class="QTableView" name="result_table">
+       <widget class="view::symbol_view" name="result_table">
         <property name="lineWidth">
          <number>0</number>
         </property>
@@ -76,6 +76,13 @@
   </action>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
+ <customwidgets>
+  <customwidget>
+   <class>view::symbol_view</class>
+   <extends>QTableView</extends>
+   <header>symbol_view.h</header>
+  </customwidget>
+ </customwidgets>
  <resources>
   <include location="symbk.qrc"/>
  </resources>
