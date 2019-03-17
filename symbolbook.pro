@@ -1,8 +1,21 @@
-#-------------------------------------------------
-#
-# Project created by QtCreator 2019-02-16T17:05:55
-#
-#-------------------------------------------------
+# Original Work Copyright (c) 2019 Giuseppe Baccini - giuseppe.baccini@live.com
+
+# Permission is hereby granted, free of charge, to any person obtaining a copy of
+# this software and associated documentation files (the "Software"), to deal in
+# the Software without restriction, including without limitation the rights to
+# use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
+# the Software, and to permit persons to whom the Software is furnished to do so,
+# subject to the following conditions:
+
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
+# FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+# COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
+# IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+# CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 QT       += core gui
 
@@ -36,14 +49,16 @@ SOURCES += \
     main_dlg.cpp \
     str_tok.cpp \
     waitingspinnerwidget.cpp \
-    symbol_view.cpp
+    symbol_view.cpp \
+    browser_view.cpp
 
 HEADERS += \
     symbol_model.h \
     main_dlg.h \
     str_tok.h \
     waitingspinnerwidget.h \
-    symbol_view.h
+    symbol_view.h \
+    browser_view.h
 
 FORMS += \
     symbolbook.ui

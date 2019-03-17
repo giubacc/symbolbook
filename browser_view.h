@@ -18,20 +18,17 @@ IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
-#include "main_dlg.h"
-#include <QApplication>
+#pragma once
+#pragma warning(disable:4100)
 
-#define QUOTE_(x) #x
-#define QUOTE(x) QUOTE_(x)
+#include <QtWidgets>
 
-int main(int argc, char *argv[])
-{
-    QApplication a(argc, argv);
-    qApp->setApplicationVersion(QUOTE(APP_VERSION));
-    qApp->setApplicationName(QUOTE(APP_NAME));
-    qApp->setOrganizationDomain("https://github.com/richter82/symbolbook");
-    MainDlg w;
-    w.setWindowTitle(qApp->applicationName() + QString(" - ") + qApp->applicationVersion() + " - " + __DATE__);
-    w.show();
-    return a.exec();
+namespace view {
+
+class browser_view : public QTreeView {
+        Q_OBJECT
+    public:
+        explicit browser_view(QWidget *parent = nullptr);
+};
+
 }

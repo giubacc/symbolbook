@@ -1,6 +1,24 @@
-#ifndef SYMBOLBOOK_H
-#define SYMBOLBOOK_H
+/* Original Work Copyright (c) 2019 Giuseppe Baccini - giuseppe.baccini@live.com
 
+Permission is hereby granted, free of charge, to any person obtaining a copy of
+this software and associated documentation files (the "Software"), to deal in
+the Software without restriction, including without limitation the rights to
+use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
+the Software, and to permit persons to whom the Software is furnished to do so,
+subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
+FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
+IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+*/
+
+#pragma once
 #pragma warning(disable:4100)
 
 #include <QMainWindow>
@@ -19,7 +37,7 @@ class MainDlg : public QMainWindow {
 
     public:
         explicit MainDlg(QWidget *parent = nullptr);
-        ~MainDlg();
+        ~MainDlg() override;
 
     protected:
         void closeEvent(QCloseEvent *event) override;
@@ -40,13 +58,13 @@ class MainDlg : public QMainWindow {
         void on_actionLoad_Symbols_triggered();
         void onModelChanged();
         void onResultTableEnterPressed(const QModelIndex &index);
-
         void on_actionDrop_Symbols_triggered();
 
     signals:
         void modelChanged();
 
     private:
+        std::unique_ptr<QFileSystemModel> file_browser_model_;
         std::string dumpbin_;
         std::unique_ptr<model::address_model> model_;
         std::set<std::string> scan_dir_set_;
@@ -57,5 +75,3 @@ class MainDlg : public QMainWindow {
     private:
         Ui::SymbolBook *ui;
 };
-
-#endif // SYMBOLBOOK_H

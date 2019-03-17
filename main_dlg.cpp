@@ -1,3 +1,23 @@
+/* Original Work Copyright (c) 2019 Giuseppe Baccini - giuseppe.baccini@live.com
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of
+this software and associated documentation files (the "Software"), to deal in
+the Software without restriction, including without limitation the rights to
+use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
+the Software, and to permit persons to whom the Software is furnished to do so,
+subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
+FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
+IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+*/
+
 #include "main_dlg.h"
 #include "ui_symbolbook.h"
 
@@ -15,10 +35,20 @@
 
 MainDlg::MainDlg(QWidget *parent) :
     QMainWindow(parent),
+    file_browser_model_(new QFileSystemModel()),
     model_(new model::address_model(parent)),
     ui(new Ui::SymbolBook)
 {
     ui->setupUi(this);
+
+    file_browser_model_->setRootPath("/");
+    file_browser_model_->setNameFilters(QStringList() << "*.lib");
+    file_browser_model_->setNameFilterDisables(false);
+    ui->file_browser->setModel(file_browser_model_.get());
+    ui->file_browser->header()->setSectionResizeMode(0, QHeaderView::ResizeToContents);
+    ui->file_browser->hideColumn(1);
+    ui->file_browser->hideColumn(2);
+
     ui->result_table->setModel(model_.get());
     ui->result_table->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
     ui->result_table->setItemDelegate(new model::highlight_delegate());
@@ -38,7 +68,6 @@ MainDlg::MainDlg(QWidget *parent) :
     connect(this, SIGNAL(modelChanged()), this, SLOT(onModelChanged()));
     connect(ui->result_table, SIGNAL(enterPressed(QModelIndex)), this,
             SLOT(onResultTableEnterPressed(const QModelIndex &)));
-
 }
 
 MainDlg::~MainDlg()
@@ -188,5 +217,3 @@ void MainDlg::onResultTableEnterPressed(const QModelIndex &index)
     args << "/select," << QDir::toNativeSeparators(fileInfo.canonicalFilePath());
     QProcess::startDetached("explorer.exe", args);
 }
-
-
