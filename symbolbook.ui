@@ -47,7 +47,7 @@
        </property>
       </widget>
       <widget class="QWidget" name="horizontalLayoutWidget">
-       <layout class="QVBoxLayout" name="verticalLayout">
+       <layout class="QVBoxLayout" name="result_layout">
         <item>
          <widget class="view::symbol_view" name="result_table">
           <property name="lineWidth">

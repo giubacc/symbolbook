@@ -40,6 +40,7 @@ MainDlg::MainDlg(QWidget *parent) :
     ui(new Ui::SymbolBook)
 {
     ui->setupUi(this);
+    spinner_.reset(new WaitingSpinnerWidget(ui->result_table));
 
     file_browser_model_->setRootPath("/");
     file_browser_model_->setNameFilters(QStringList() << "*.lib");
@@ -108,7 +109,6 @@ void MainDlg::load_scan_dir_set()
 
 void MainDlg::setup_spinner()
 {
-    spinner_.reset(new WaitingSpinnerWidget(Qt::ApplicationModal, parentWidget()));
     spinner_->setRoundness(70.0);
     spinner_->setMinimumTrailOpacity(15.0);
     spinner_->setTrailFadePercentage(70.0);
@@ -132,6 +132,8 @@ void MainDlg::obtain_sym_files(const QString &path,
 
 void MainDlg::load_syms()
 {
+    ui->mainToolBar->setEnabled(false);
+    ui->input_box->setEnabled(false);
     setup_spinner();
     spinner_->start();
     load_symbs_worker_.reset(new std::thread([&]() {
@@ -205,6 +207,8 @@ void MainDlg::onModelChanged()
     }
     if(spinner_) {
         spinner_->stop();
+        ui->mainToolBar->setEnabled(true);
+        ui->input_box->setEnabled(true);
     }
     ui->statusBar->setStyleSheet("color : blue;");
     ui->statusBar->showMessage(tr("%1 symbols loaded").arg(model_->symbolsCount()));
