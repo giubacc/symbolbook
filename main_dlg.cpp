@@ -42,6 +42,7 @@ MainDlg::MainDlg(QWidget *parent) :
     ui->setupUi(this);
     spinner_.reset(new WaitingSpinnerWidget(ui->result_table));
 
+    //file browser model/view
     file_browser_model_->setRootPath("/");
     file_browser_model_->setNameFilters(QStringList() << "*.lib");
     file_browser_model_->setNameFilterDisables(false);
@@ -50,11 +51,12 @@ MainDlg::MainDlg(QWidget *parent) :
     ui->file_browser->hideColumn(1);
     ui->file_browser->hideColumn(2);
 
+    //result table model/view
     ui->result_table->setModel(model_.get());
     ui->result_table->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
     ui->result_table->setItemDelegate(new model::highlight_delegate());
 
-    //settings bgn
+    //load settings
     QSettings settings;
     settings.beginGroup(KEY_WINDOW);
     if(settings.contains(KEY_SIZE)) {
@@ -64,9 +66,9 @@ MainDlg::MainDlg(QWidget *parent) :
         move(settings.value(KEY_POSITION).toPoint());
     }
     settings.endGroup();
-    //settings end
 
     connect(this, SIGNAL(modelChanged()), this, SLOT(onModelChanged()));
+    connect(this, SIGNAL(processingSourceFile(const QString)), this, SLOT(onProcessingSourceFile(const QString &)));
     connect(ui->result_table, SIGNAL(enterPressed(QModelIndex)), this,
             SLOT(onResultTableEnterPressed(const QModelIndex &)));
 }
@@ -100,10 +102,12 @@ void MainDlg::load_dumpbin()
 void MainDlg::load_scan_dir_set()
 {
     std::ifstream ifs(SYM_LOCS);
+    if(!ifs) {
+        return;
+    }
     std::string line;
     while(std::getline(ifs, line)) {
-        //qDebug() << line.c_str();
-        scan_dir_set_.insert(line);
+        source_scan_set_.insert(line);
     }
 }
 
@@ -121,23 +125,25 @@ void MainDlg::setup_spinner()
 }
 
 void MainDlg::obtain_sym_files(const QString &path,
-                               const QStringList &nameFilters)
+                               const QStringList &nameFilters,
+                               std::list<QFileInfo> &sym_file_list)
 {
     QDirIterator it(path, nameFilters, QDir::Files, QDirIterator::Subdirectories);
     while(it.hasNext()) {
-        qDebug() << it.next();
-        sym_file_list_.push_back(it.fileInfo());
+        it.next();
+        sym_file_list.push_back(it.fileInfo());
     }
 }
 
-void MainDlg::load_syms()
+void MainDlg::load_syms(const std::list<QFileInfo> &sym_file_list)
 {
     ui->mainToolBar->setEnabled(false);
     ui->input_box->setEnabled(false);
     setup_spinner();
     spinner_->start();
-    load_symbs_worker_.reset(new std::thread([&]() {
-        std::for_each(sym_file_list_.begin(), sym_file_list_.end(), [&](auto &it) {
+    load_symbs_worker_.reset(new std::thread([ &, sym_file_list]() {
+        std::for_each(sym_file_list.begin(), sym_file_list.end(), [&](auto &it) {
+            emit processingSourceFile(it.absoluteFilePath());
             QProcess dumpbin;
             dumpbin.setProcessChannelMode(QProcess::MergedChannels);
             QStringList dumpbin_args;
@@ -159,8 +165,7 @@ void MainDlg::load_syms()
 
 void MainDlg::drop_syms()
 {
-    scan_dir_set_.clear();
-    sym_file_list_.clear();
+    source_scan_set_.clear();
     model_->drop_symbols();
     emit modelChanged();
 }
@@ -186,13 +191,26 @@ void MainDlg::on_actionLoad_Symbols_triggered()
     //reload scan dir path set
     load_scan_dir_set();
 
+    std::list<QFileInfo> sym_file_list;
+
     //load all files path
-    std::for_each(scan_dir_set_.begin(), scan_dir_set_.end(), [&](auto &it) {
-        obtain_sym_files(tr(it.c_str()), QStringList() << "*.lib");
+    std::for_each(source_scan_set_.begin(), source_scan_set_.end(), [&](auto &it) {
+        QFile f(it.c_str());
+        if(!f.exists()) {
+            ui->statusBar->setStyleSheet("color : red;");
+            ui->statusBar->showMessage(tr("source: %1 does not exist!").arg(it.c_str()));
+        } else {
+            QFileInfo finfo(f);
+            if(finfo.isDir()) {
+                obtain_sym_files(tr(it.c_str()), QStringList() << "*.lib", sym_file_list);
+            } else {
+                sym_file_list.push_back(finfo);
+            }
+        }
     });
 
     //load symbols
-    load_syms();
+    load_syms(sym_file_list);
 }
 
 void MainDlg::on_actionDrop_Symbols_triggered()
@@ -220,4 +238,23 @@ void MainDlg::onResultTableEnterPressed(const QModelIndex &index)
     QStringList args;
     args << "/select," << QDir::toNativeSeparators(fileInfo.canonicalFilePath());
     QProcess::startDetached("explorer.exe", args);
+}
+
+void MainDlg::onProcessingSourceFile(const QString &source_file)
+{
+    ui->statusBar->setStyleSheet("color : blue;");
+    ui->statusBar->showMessage(tr("scanning source: %1 ..").arg(source_file));
+}
+
+void MainDlg::on_actionSelect_Source_triggered()
+{
+    QModelIndex index = ui->file_browser->currentIndex();
+    if(!index.isValid()) {
+        ui->statusBar->setStyleSheet("color : red;");
+        ui->statusBar->showMessage(tr("select a valid source!"));
+    }
+    QFileInfo finfo(file_browser_model_->fileInfo(index));
+    source_scan_set_.insert(finfo.absoluteFilePath().toStdString());
+    ui->statusBar->setStyleSheet("color : blue;");
+    ui->statusBar->showMessage(tr("added source: %1").arg(finfo.absoluteFilePath()));
 }

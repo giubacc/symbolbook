@@ -26,6 +26,4 @@ browser_view::browser_view(QWidget *)
 {
 }
 
-
-
 }

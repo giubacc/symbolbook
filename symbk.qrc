@@ -2,5 +2,6 @@
     <qresource prefix="/">
         <file>icons/md-arrow-round-up.svg</file>
         <file>icons/md-trash.svg</file>
+        <file>icons/md-magnet.svg</file>
     </qresource>
 </RCC>

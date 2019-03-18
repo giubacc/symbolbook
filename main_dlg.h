@@ -48,27 +48,31 @@ class MainDlg : public QMainWindow {
         void setup_spinner();
 
         void obtain_sym_files(const QString &path,
-                              const QStringList &nameFilters);
+                              const QStringList &nameFilters,
+                              std::list<QFileInfo> &sym_file_list);
 
-        void load_syms();
+        void load_syms(const std::list<QFileInfo> &sym_file_list);
         void drop_syms();
 
     private slots:
-        void on_input_box_textEdited(const QString &arg1);
-        void on_actionLoad_Symbols_triggered();
         void onModelChanged();
         void onResultTableEnterPressed(const QModelIndex &index);
+        void onProcessingSourceFile(const QString &source_file);
+
+        void on_input_box_textEdited(const QString &arg1);
+        void on_actionLoad_Symbols_triggered();
         void on_actionDrop_Symbols_triggered();
+        void on_actionSelect_Source_triggered();
 
     signals:
         void modelChanged();
+        void processingSourceFile(const QString source_file);
 
     private:
         std::unique_ptr<QFileSystemModel> file_browser_model_;
         std::string dumpbin_;
         std::unique_ptr<model::address_model> model_;
-        std::set<std::string> scan_dir_set_;
-        std::list<QFileInfo> sym_file_list_;
+        std::set<std::string> source_scan_set_;
         std::unique_ptr<std::thread> load_symbs_worker_;
         std::unique_ptr<WaitingSpinnerWidget> spinner_;
 

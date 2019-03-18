@@ -97,6 +97,8 @@
    </attribute>
    <addaction name="actionLoad_Symbols"/>
    <addaction name="actionDrop_Symbols"/>
+   <addaction name="separator"/>
+   <addaction name="actionSelect_Source"/>
   </widget>
   <widget class="QStatusBar" name="statusBar"/>
   <action name="actionLoad_Symbols">
@@ -118,6 +120,18 @@
    </property>
    <property name="toolTip">
     <string>Drop Symbols</string>
+   </property>
+  </action>
+  <action name="actionSelect_Source">
+   <property name="icon">
+    <iconset resource="symbk.qrc">
+     <normaloff>:/icons/md-magnet.svg</normaloff>:/icons/md-magnet.svg</iconset>
+   </property>
+   <property name="text">
+    <string>Select Source</string>
+   </property>
+   <property name="toolTip">
+    <string>Select Source</string>
    </property>
   </action>
  </widget>

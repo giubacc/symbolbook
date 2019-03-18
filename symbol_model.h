@@ -71,7 +71,7 @@ class address_model : public QAbstractTableModel {
         }
 
         const QFileInfo &getFInfo(const QModelIndex &index) {
-            return cur_symbols_.at(index.row())->finfo_;
+            return cur_symbols_.at(static_cast<size_t>(index.row()))->finfo_;
         }
 
     private:
