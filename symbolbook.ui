@@ -104,7 +104,7 @@
   <action name="actionLoad_Symbols">
    <property name="icon">
     <iconset resource="symbk.qrc">
-     <normaloff>:/icons/md-arrow-round-up.svg</normaloff>:/icons/md-arrow-round-up.svg</iconset>
+     <normaloff>:/icon/icons/md-arrow-round-up.png</normaloff>:/icon/icons/md-arrow-round-up.png</iconset>
    </property>
    <property name="text">
     <string>Load Symbols</string>
@@ -113,7 +113,7 @@
   <action name="actionDrop_Symbols">
    <property name="icon">
     <iconset resource="symbk.qrc">
-     <normaloff>:/icons/md-trash.svg</normaloff>:/icons/md-trash.svg</iconset>
+     <normaloff>:/icon/icons/md-trash.png</normaloff>:/icon/icons/md-trash.png</iconset>
    </property>
    <property name="text">
     <string>Drop Symbols</string>
@@ -125,7 +125,7 @@
   <action name="actionSelect_Source">
    <property name="icon">
     <iconset resource="symbk.qrc">
-     <normaloff>:/icons/md-magnet.svg</normaloff>:/icons/md-magnet.svg</iconset>
+     <normaloff>:/icon/icons/md-magnet.png</normaloff>:/icon/icons/md-magnet.png</iconset>
    </property>
    <property name="text">
     <string>Select Source</string>

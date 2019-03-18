@@ -1,7 +1,7 @@
 <RCC>
-    <qresource prefix="/">
-        <file>icons/md-arrow-round-up.svg</file>
-        <file>icons/md-trash.svg</file>
-        <file>icons/md-magnet.svg</file>
+    <qresource prefix="/icon">
+        <file>icons/md-arrow-round-up.png</file>
+        <file>icons/md-magnet.png</file>
+        <file>icons/md-trash.png</file>
     </qresource>
 </RCC>
