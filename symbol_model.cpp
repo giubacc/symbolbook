@@ -67,14 +67,18 @@ int model::address_model::columnCount(const QModelIndex &) const
 
 QVariant address_model::headerData(int section, Qt::Orientation orientation, int role) const
 {
-    if(role != Qt::DisplayRole) {
-        return QVariant();
+    if(role == Qt::TextAlignmentRole) {
+        return Qt::AlignLeft;
     }
-    if(orientation == Qt::Horizontal) {
-        return section == 0 ? tr("Source File") : tr("Symbol");
-    } else {
-        return QAbstractTableModel::headerData(section, orientation, role);
+    if(role == Qt::DisplayRole) {
+        if(orientation == Qt::Horizontal) {
+            return section == 0 ? tr("Source File") : tr("Symbol");
+        } else {
+            return QAbstractTableModel::headerData(section, orientation, role);
+        }
+
     }
+    return QVariant();
 }
 
 QVariant model::address_model::data(const QModelIndex &index, int role) const
@@ -194,9 +198,13 @@ void highlight_delegate::paint(QPainter *painter,
         cur.setCharFormat(selection);
     }
 
+    auto options = option;
+    initStyleOption(&options, index);
     painter->save();
-    painter->translate(option.rect.x(), option.rect.y());
-    doc.drawContents(painter);
+    options.widget->style()->drawControl(QStyle::CE_ItemViewItem, &option, painter);
+    painter->translate(option.rect.left(), option.rect.top() + 0.5*(options.rect.height() - doc.size().height()));
+    QRect clip(0, 0, option.rect.width(), option.rect.height());
+    doc.drawContents(painter, clip);
     painter->restore();
 }
 
