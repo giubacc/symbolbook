@@ -35,7 +35,7 @@ void address_model::offerKey(const QString &key)
 {
     cur_key_ = key;
     if(!cur_symbols_.empty()) {
-        removeRows(0, (int)cur_symbols_.size(), QModelIndex());
+        removeRows(0, static_cast<int>(cur_symbols_.size()), QModelIndex());
     }
     cur_symbols_.clear();
     if(!key.size()) {
@@ -51,16 +51,16 @@ void address_model::offerKey(const QString &key)
         }
     }
     if(!cur_symbols_.empty()) {
-        insertRows(0, cur_symbols_.size(), QModelIndex());
+        insertRows(0, static_cast<int>(cur_symbols_.size()), QModelIndex());
     }
 }
 
-int model::address_model::rowCount(const QModelIndex &parent) const
+int model::address_model::rowCount(const QModelIndex &) const
 {
-    return (int)cur_symbols_.size();
+    return static_cast<int>(cur_symbols_.size());
 }
 
-int model::address_model::columnCount(const QModelIndex &parent) const
+int model::address_model::columnCount(const QModelIndex &) const
 {
     return 2;
 }
@@ -82,29 +82,29 @@ QVariant model::address_model::data(const QModelIndex &index, int role) const
     if(!index.isValid()) {
         return QVariant();
     }
-    if(index.row() >= (int)cur_symbols_.size() || index.row() < 0) {
+    if(index.row() >= static_cast<int>(cur_symbols_.size()) || index.row() < 0) {
         return QVariant();
     }
     if(index.column() != 0 && index.column() != 1) {
         return QVariant();
     }
     if(index.column() == 1 && role == Qt::DisplayRole) {
-        return QString(cur_symbols_.at(index.row())->entry_str_.c_str());
+        return QString(cur_symbols_.at(static_cast<size_t>(index.row()))->entry_str_.c_str());
     }
     if(index.column() == 0 && role == Qt::DisplayRole) {
-        return QString(cur_symbols_.at(index.row())->finfo_.absoluteFilePath());
+        return QString(cur_symbols_.at(static_cast<size_t>(index.row()))->finfo_.absoluteFilePath());
     }
     return QVariant();
 }
 
-bool model::address_model::insertRows(int position, int rows, const QModelIndex &index)
+bool model::address_model::insertRows(int position, int rows, const QModelIndex &)
 {
     beginInsertRows(QModelIndex(), position, position+rows-1);
     endInsertRows();
     return true;
 }
 
-bool model::address_model::removeRows(int position, int rows, const QModelIndex &index)
+bool model::address_model::removeRows(int position, int rows, const QModelIndex &)
 {
     beginRemoveRows(QModelIndex(), position, position+rows-1);
     cur_symbols_.clear();
@@ -120,7 +120,8 @@ void address_model::add_symbol_file_to_model(const QFileInfo &finfo,
     utl::str_tok tknz(dumpbin_str);
     std::string line;
     uint32_t no = 13;
-    while(--no && tknz.next_token(line, "\r\n"));
+    while(--no && tknz.next_token(line, "\r\n"))
+        ;
 
     //read symbols no
     {
@@ -184,7 +185,8 @@ void highlight_delegate::paint(QPainter *painter,
     // We have to iterate through the QTextDocument to find ALL matching places
     while(!(cur = doc.find(dataHighlight, cur.position())).isNull()) {
         if(cur.position() == value.size() ||
-                (cur.position() < value.size() && sym_seps.find(value[cur.position()].toLatin1()) != std::string::npos)) {
+                ((cur.position() < value.size() && sym_seps.find(value[cur.position()].toLatin1()) != std::string::npos) &&
+                 (!cur.anchor() || sym_seps.find(value[cur.anchor()-1].toLatin1()) != std::string::npos))) {
             selection.setBackground(Qt::green);
         } else {
             selection.setBackground(Qt::yellow);

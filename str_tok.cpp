@@ -26,7 +26,7 @@ static const char *def_delims = " \t\n\r\f";
 
 str_tok::str_tok(const std::string &str)  :
     current_position_(0),
-    max_position_((long)str.length()),
+    max_position_(static_cast<long>(str.length())),
     new_position_(-1),
     str_(str),
     delimiters_(def_delims),
@@ -42,7 +42,7 @@ long str_tok::skip_delimit(long start_pos)
 {
     long position = start_pos;
     while(!ret_delims_ && position < max_position_) {
-        if(delimiters_.find(str_.at(position)) == std::string::npos) {
+        if(delimiters_.find(str_.at(static_cast<size_t>(position))) == std::string::npos) {
             break;
         }
         position++;
@@ -54,13 +54,13 @@ long str_tok::scan_token(long start_pos)
 {
     long position = start_pos;
     while(position < max_position_) {
-        if(delimiters_.find(str_.at(position)) != std::string::npos) {
+        if(delimiters_.find(str_.at(static_cast<size_t>(position))) != std::string::npos) {
             break;
         }
         position++;
     }
     if(ret_delims_ && (start_pos == position)) {
-        if(delimiters_.find(str_.at(position)) != std::string::npos) {
+        if(delimiters_.find(str_.at(static_cast<size_t>(position))) != std::string::npos) {
             position++;
         }
     }
@@ -86,7 +86,7 @@ bool str_tok::next_token(std::string &out,
     }
     long start = current_position_;
     current_position_ = scan_token(current_position_);
-    out = str_.substr(start, current_position_ - start);
+    out = str_.substr(static_cast<size_t>(start), static_cast<size_t>(current_position_ - start));
     return true;
 }
 

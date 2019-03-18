@@ -76,7 +76,7 @@ MainDlg::~MainDlg()
     delete ui;
 }
 
-void MainDlg::closeEvent(QCloseEvent *event)
+void MainDlg::closeEvent(QCloseEvent *)
 {
     QSettings settings;
     settings.beginGroup(KEY_WINDOW);

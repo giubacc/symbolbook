@@ -22,7 +22,7 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 namespace view {
 
-browser_view::browser_view(QWidget *parent)
+browser_view::browser_view(QWidget *)
 {
 }
 
