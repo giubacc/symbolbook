@@ -28,7 +28,13 @@ namespace view {
 class browser_view : public QTreeView {
         Q_OBJECT
     public:
-        explicit browser_view(QWidget *parent = nullptr);
+        explicit browser_view(QWidget *parent = nullptr) : QTreeView(parent) {}
+
+    protected:
+        void keyPressEvent(QKeyEvent *evt) override;
+
+    signals:
+        void spacePressed(QModelIndex);
 };
 
 }

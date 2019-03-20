@@ -3,5 +3,6 @@
         <file>icons/md-arrow-round-up.png</file>
         <file>icons/md-magnet.png</file>
         <file>icons/md-trash.png</file>
+        <file>icons/md-navigate.png</file>
     </qresource>
 </RCC>

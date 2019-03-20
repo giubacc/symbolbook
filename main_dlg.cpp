@@ -68,9 +68,18 @@ MainDlg::MainDlg(QWidget *parent) :
     settings.endGroup();
 
     connect(this, SIGNAL(modelChanged()), this, SLOT(onModelChanged()));
-    connect(this, SIGNAL(processingSourceFile(const QString)), this, SLOT(onProcessingSourceFile(const QString &)));
+
+    connect(this, SIGNAL(processingSourceFile(const QString)), this,
+            SLOT(onProcessingSourceFile(const QString &)));
+
     connect(ui->result_table, SIGNAL(enterPressed(QModelIndex)), this,
             SLOT(onResultTableEnterPressed(const QModelIndex &)));
+
+    connect(ui->result_table, SIGNAL(doubleClicked(QModelIndex)), this,
+            SLOT(onResultTableEnterPressed(const QModelIndex &)));
+
+    connect(ui->file_browser, SIGNAL(spacePressed(QModelIndex)), this,
+            SLOT(on_actionSelect_Source_triggered()));
 }
 
 MainDlg::~MainDlg()
@@ -167,6 +176,7 @@ void MainDlg::drop_syms()
 {
     source_scan_set_.clear();
     model_->drop_symbols();
+    ui->input_box->clear();
     emit modelChanged();
 }
 

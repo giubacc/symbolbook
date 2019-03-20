@@ -25,7 +25,7 @@ TARGET = symbolbook
 TEMPLATE = app
 
 DEFINES += 'APP_NAME=\"SymbolBook\"'
-VERSION = 0.0.0
+VERSION = 0.1.0
 DEFINES += APP_VERSION=$$VERSION
 
 RC_FILE = symbk.rc

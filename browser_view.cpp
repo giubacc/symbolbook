@@ -22,8 +22,13 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 namespace view {
 
-browser_view::browser_view(QWidget *)
+void browser_view::keyPressEvent(QKeyEvent *evt)
 {
+    if(evt->key()==Qt::Key_Space) {
+        emit spacePressed(this->currentIndex());
+    } else {
+        QTreeView::keyPressEvent(evt);
+    }
 }
 
 }

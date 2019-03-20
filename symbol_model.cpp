@@ -158,7 +158,7 @@ void address_model::add_symbol_file_to_model(const QFileInfo &finfo,
 void address_model::drop_symbols()
 {
     cur_key_.clear();
-    cur_symbols_.clear();
+    removeRows(0, static_cast<int>(cur_symbols_.size()));
     symb_map_.clear();
     entry_str_pool_.clear();
 }
