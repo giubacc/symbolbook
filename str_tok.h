@@ -38,6 +38,8 @@ struct str_tok {
 
         void reset() {
             current_position_ = 0;
+            max_position_ = static_cast<long>(str_.length());
+            new_position_ = -1;
         }
 
     private:

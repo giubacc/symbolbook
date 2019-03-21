@@ -54,7 +54,10 @@ class MainDlg : public QMainWindow {
         void load_syms(const std::list<QFileInfo> &sym_file_list);
         void drop_syms();
 
+        void afterScan();
+
     private slots:
+        void onDumpbinError();
         void onModelChanged();
         void onResultTableEnterPressed(const QModelIndex &index);
         void onProcessingSourceFile(const QString &source_file);
@@ -65,6 +68,7 @@ class MainDlg : public QMainWindow {
         void on_actionSelect_Source_triggered();
 
     signals:
+        void dumpbinError();
         void modelChanged();
         void processingSourceFile(const QString source_file);
 

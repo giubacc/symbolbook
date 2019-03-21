@@ -136,11 +136,15 @@ void address_model::add_symbol_file_to_model(const QFileInfo &finfo,
         ss >> no;
     }
     while(no-- && tknz.next_token(line, "\r\n")) {
-        utl::trim(line);
+        utl::rtrim(line);
         std::string symbol;
         std::set<std::string> current_symbol_set;
         utl::str_tok strtk(line);
+
         strtk.next_token(symbol, sym_seps.c_str()); //1 token not useful
+        utl::ltrim(utl::find_and_replace(line, symbol.c_str(), ""));
+        strtk.reset();
+
         while(strtk.next_token(symbol, sym_seps.c_str())) {
             if(symbol.size() <= 2) {
                 continue;
@@ -158,7 +162,9 @@ void address_model::add_symbol_file_to_model(const QFileInfo &finfo,
 void address_model::drop_symbols()
 {
     cur_key_.clear();
-    removeRows(0, static_cast<int>(cur_symbols_.size()));
+    if(cur_symbols_.size()) {
+        removeRows(0, static_cast<int>(cur_symbols_.size()));
+    }
     symb_map_.clear();
     entry_str_pool_.clear();
 }

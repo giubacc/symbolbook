@@ -67,6 +67,8 @@ MainDlg::MainDlg(QWidget *parent) :
     }
     settings.endGroup();
 
+    connect(this, SIGNAL(dumpbinError()), this, SLOT(onDumpbinError()));
+
     connect(this, SIGNAL(modelChanged()), this, SLOT(onModelChanged()));
 
     connect(this, SIGNAL(processingSourceFile(const QString)), this,
@@ -151,6 +153,7 @@ void MainDlg::load_syms(const std::list<QFileInfo> &sym_file_list)
     setup_spinner();
     spinner_->start();
     load_symbs_worker_.reset(new std::thread([ &, sym_file_list]() {
+        bool error = false;
         std::for_each(sym_file_list.begin(), sym_file_list.end(), [&](auto &it) {
             emit processingSourceFile(it.absoluteFilePath());
             QProcess dumpbin;
@@ -164,11 +167,18 @@ void MainDlg::load_syms(const std::list<QFileInfo> &sym_file_list)
                 while(dumpbin.waitForReadyRead(-1)) {
                     output += dumpbin.readAllStandardOutput();
                 }
+            } else {
+                error = true;
+                return;
             }
             dumpbin.waitForFinished();
             model_->add_symbol_file_to_model(it, output.toStdString());
         });
-        emit modelChanged();
+        if(error) {
+            emit dumpbinError();
+        } else {
+            emit modelChanged();
+        }
     }));
 }
 
@@ -228,7 +238,7 @@ void MainDlg::on_actionDrop_Symbols_triggered()
     drop_syms();
 }
 
-void MainDlg::onModelChanged()
+void MainDlg::afterScan()
 {
     if(load_symbs_worker_ && load_symbs_worker_->joinable()) {
         load_symbs_worker_->join();
@@ -238,6 +248,18 @@ void MainDlg::onModelChanged()
         ui->mainToolBar->setEnabled(true);
         ui->input_box->setEnabled(true);
     }
+}
+
+void MainDlg::onDumpbinError()
+{
+    afterScan();
+    ui->statusBar->setStyleSheet("color : red;");
+    ui->statusBar->showMessage(tr("error running dumpbin!"));
+}
+
+void MainDlg::onModelChanged()
+{
+    afterScan();
     ui->statusBar->setStyleSheet("color : blue;");
     ui->statusBar->showMessage(tr("%1 symbols loaded").arg(model_->symbolsCount()));
 }
